@@ -17,28 +17,93 @@
 (def numbers (map parse-long str-lines))
 
 ;; 1번 문제
-(reduce + 0 numbers) 
+(reduce + numbers) 
 (apply + numbers)
+
+;;
 
 
 ;; 2번 문제
-;; 주파수 보정치의 무한한 시퀀스
-(def adjustments (cycle numbers))
+(defn find-duplicated-frequency [adjustments]
+  (let [;; 주파수 보정치의 무한한 시퀀스
+        adjustments              (cycle adjustments)
+        ;; 보정된 주파수들의 무한한 시퀀스
+        adjustmented-frequencies (rest (reductions + adjustments))]
+    (loop [[current-frequency & rest-frequencies] adjustmented-frequencies
+           seen-frequencies                       #{}]
+      (if (contains? seen-frequencies current-frequency)
+        current-frequency
+        (recur rest-frequencies
+               (conj seen-frequencies current-frequency))))))
 
-;; 보정된 주파수들의 무한한 시퀀스
-(def adjustmented-frequencies (rest (reductions + adjustments)))
+(defn new-find-duplicated-frequency [adjustments]
+  (let [;; 주파수 보정치의 무한한 시퀀스
+        adjustments              (cycle adjustments)
+        ;; 보정된 주파수들의 무한한 시퀀스
+        adjustmented-frequencies (rest (reductions + adjustments))]
+    (reduce (fn [seen-frequencies val]
+              (if (seen-frequencies val)
+                (reduced val)
+                (conj seen-frequencies val)))
+            #{}
+            adjustmented-frequencies)))
 
-;; 살펴본 주파수들의 집합
-(defn check-if-exist [adjustmented-frequencies]
-  (loop [adjustmented-frequencies adjustmented-frequencies
-         seen-frequencies #{}]
-    (if (contains? seen-frequencies (first adjustmented-frequencies))
-      (first adjustmented-frequencies)
-      (recur (rest adjustmented-frequencies)
-             (conj seen-frequencies (first adjustmented-frequencies))))))
+(defn new-new-find-duplicated-frequency [adjustments]
+  (let [;; 주파수 보정치의 무한한 시퀀스
+        adjustments              (cycle adjustments)
+        ;; 보정된 주파수들의 무한한 시퀀스
+        adjustmented-frequencies (rest (reductions + adjustments))]
+    (reduce (fn [seen-frequencies val]
+              (if (seen-frequencies val)
+                (reduced val)
+                (conj seen-frequencies val)))
+            #{}
+            adjustmented-frequencies)))
 
 (comment
-  (check-if-exist adjustmented-frequencies)
+  (map str (map #(* % %) (map inc (filter even? [1 2 3 4 5 6 7 8 9 10]))))
+
+  (->> [1 2 3 4 5 6 7 8 9 10]
+       (filter even?)
+       (map inc)
+       (map #(* % %))
+       (map str))
+
+  (-> {:a 10 :b 20}
+      (assoc :c 30)
+      )
+
+  (-> [1 2 3 4 5 6 7 8 9 10]
+      (filter even?))
+
+  (->> 10
+       (inc))
+  (-> 10
+      (inc))
+
+  (->> 10
+       (- 4))
+  (- 4 10)
+
+  (-> 10
+      (- 4))
+  (- 10 4)
+
+  
+  (find-duplicated-frequency numbers)
+  (new-find-duplicated-frequency numbers)
+  (reduced 100)
+  (reduced? 100)
+
+  (let [[_a _b c _d e :as numbers] [1 2 3 4 5]]
+    (println [c e] numbers))
+
+  (reduce (fn [a b]
+            (if (= b 4)
+              (reduced b)
+              b))
+          (cycle [1 2 3 4 5])
+          )
 )
 
 
